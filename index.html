@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ngetik - Tes Ketik Bahasa Indonesia</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- HEADER -->
+    <header>
+      <div class="logo">⌨️ <span class="logo-text">Ngetik</span></div>
+      <nav>
+        <button class="nav-btn active" data-page="test">Typing Test</button>
+        <button class="nav-btn" data-page="lesson">Dasar Jari</button>
+        <button class="nav-btn" data-page="game">Typing Game</button>
+      </nav>
+      <div class="header-stats" id="headerStats">Rekor: —</div>
+    </header>
+
+    <!-- ==================== TYPING TEST PAGE ==================== -->
+    <main id="testPage" class="page active">
+      <!-- Test Config Bar -->
+      <div class="config-bar">
+        <div class="config-group">
+          <button class="config-btn active" data-mode="time">Waktu</button>
+          <button class="config-btn" data-mode="words">Kata</button>
+        </div>
+        <div class="config-group" id="timeConfig">
+          <button class="config-btn small" data-value="15">15</button>
+          <button class="config-btn small active" data-value="30">30</button>
+          <button class="config-btn small" data-value="60">60</button>
+          <button class="config-btn small" data-value="120">120</button>
+        </div>
+        <div class="config-group hidden" id="wordsConfig">
+          <button class="config-btn small" data-value="10">10</button>
+          <button class="config-btn small active" data-value="25">25</button>
+          <button class="config-btn small" data-value="50">50</button>
+          <button class="config-btn small" data-value="100">100</button>
+        </div>
+        <div class="config-group">
+          <button class="config-btn" data-difficulty="easy">Mudah</button>
+          <button class="config-btn active" data-difficulty="mixed">Campur</button>
+          <button class="config-btn" data-difficulty="hard">Sulit</button>
+          <button class="config-btn" data-difficulty="sentences">Kalimat</button>
+        </div>
+      </div>
+
+      <!-- Timer Display -->
+      <div class="timer-bar" id="timerBar">
+        <div class="timer-fill" id="timerFill"></div>
+        <span class="timer-text" id="timerText">30</span>
+      </div>
+
+      <!-- Typing Area -->
+      <div class="typing-container" id="typingContainer">
+        <div class="word-display" id="wordDisplay"></div>
+        <input type="text" id="typingInput" class="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Mulai mengetik...">
+      </div>
+      <div class="keyboard-warning hidden" id="capsWarning">⇪ Caps Lock aktif — huruf besar tidak akan cocok dengan kata</div>
+
+      <!-- Live Stats -->
+      <div class="live-stats" id="liveStats">
+        <div class="stat">
+          <span class="stat-value" id="liveWpm">0</span>
+          <span class="stat-label">WPM</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="liveAccuracy">100</span>
+          <span class="stat-label">Akurasi %</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="liveCorrect">0</span>
+          <span class="stat-label">Benar</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value" id="liveWrong">0</span>
+          <span class="stat-label">Salah</span>
+        </div>
+      </div>
+      <div class="hint-bar"><kbd>Space</kbd> pindah kata &nbsp;•&nbsp; <kbd>Tab</kbd> untuk ulangi &nbsp;•&nbsp; <kbd>Enter</kbd> ulangi setelah selesai &nbsp;•&nbsp; <kbd>Esc</kbd> tutup hasil</div>
+
+      <!-- Results Overlay -->
+      <div class="results-overlay hidden" id="resultsOverlay">
+        <div class="results-card">
+          <button class="overlay-close" id="resultClose" aria-label="Tutup hasil" title="Tutup">✕</button>
+          <h2>Hasil Ketik</h2>
+          <span class="best-badge hidden" id="resultBest">🏆 Rekor Baru!</span>
+          <div class="results-grid">
+            <div class="result-item big">
+              <span class="result-value" id="resultWpm">0</span>
+              <span class="result-label">WPM</span>
+            </div>
+            <div class="result-item big">
+              <span class="result-value" id="resultAccuracy">0%</span>
+              <span class="result-label">Akurasi</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="resultCorrect">0</span>
+              <span class="result-label">Kata Benar</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="resultWrong">0</span>
+              <span class="result-label">Kata Salah</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="resultChars">0</span>
+              <span class="result-label">Karakter</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="resultTime">0s</span>
+              <span class="result-label">Waktu</span>
+            </div>
+          </div>
+          <div class="results-wpm-graph" id="wpmGraph"></div>
+          <button class="btn-primary" id="retryBtn">Coba Lagi</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== LESSON PAGE (Dasar Jari) ==================== -->
+    <main id="lessonPage" class="page">
+      <div id="lessonMenu">
+        <div class="lesson-hero">
+          <h2>Dasar Penempatan Jari</h2>
+          <p>Pelajari teknik mengetik sentuh (touch typing) di keyboard QWERTY. Mulai dari posisi dasar baris rumah, lalu latih setiap jari secara bertahap hingga hafal tanpa melihat keyboard.</p>
+          <span class="lesson-progress-strip" id="lessonProgressStrip">Selesai 0/10 latihan</span>
+        </div>
+
+        <div class="lesson-legend">
+          <span class="legend-label">Posisi jari saat istirahat:</span>
+          <div class="legend-fingers" id="legendFingers"></div>
+        </div>
+
+        <div class="lesson-grid" id="lessonGrid"></div>
+      </div>
+
+      <div class="lesson-area hidden" id="lessonArea">
+        <div class="lesson-topbar">
+          <button class="btn-small" id="lessonBackBtn">← Menu Latihan</button>
+          <div class="lesson-top-title">
+            <span class="lesson-top-icon" id="lessonTopIcon">🏠</span>
+            <span id="lessonTopTitle">Baris Rumah</span>
+          </div>
+          <span class="lesson-progress" id="lessonProgress">0/25</span>
+        </div>
+
+        <div class="lesson-word-card" id="lessonWordDisplay" title="Klik untuk fokus mengetik"></div>
+        <input type="text" id="lessonInput" class="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+
+        <div class="lesson-finger-hint hidden" id="lessonFingerHint">
+          <span class="finger-badge" id="fingerName">Jari Telunjuk Kiri</span>
+          <span class="finger-hand" id="fingerHand">Tangan Kiri</span>
+        </div>
+
+        <div class="hands-view" id="handsView" aria-hidden="true">
+          <div class="hand hand-left">
+            <span class="hand-label">Tangan Kiri</span>
+            <div class="hand-finger f-l-pinky" data-finger="l_pinky"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-l-ring" data-finger="l_ring"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-l-middle" data-finger="l_middle"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-l-index" data-finger="l_index"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-palm"></div>
+          </div>
+          <div class="hand hand-right">
+            <span class="hand-label">Tangan Kanan</span>
+            <div class="hand-finger f-r-index" data-finger="r_index"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-r-middle" data-finger="r_middle"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-r-ring" data-finger="r_ring"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-finger f-r-pinky" data-finger="r_pinky"><div class="finger-inner"><span class="finger-tip"></span></div></div>
+            <div class="hand-palm"></div>
+          </div>
+        </div>
+
+        <div class="keyboard-view" id="keyboardView"></div>
+        <div class="hint-bar"><kbd>Space</kbd> selesaikan kata &nbsp;•&nbsp; kunci yang harus ditekan menyala otomatis &nbsp;•&nbsp; <kbd>Tab</kbd> kembali ke menu</div>
+
+        <div class="live-stats">
+          <div class="stat">
+            <span class="stat-value" id="lessonAccuracy">100</span>
+            <span class="stat-label">Akurasi %</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="lessonCorrect">0</span>
+            <span class="stat-label">Kata Benar</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="lessonWrong">0</span>
+            <span class="stat-label">Kata Salah</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="results-overlay hidden" id="lessonOverlay">
+        <div class="results-card">
+          <button class="overlay-close" id="lessonOverlayClose" aria-label="Tutup hasil" title="Kembali ke menu">✕</button>
+          <h2>Latihan Selesai!</h2>
+          <span class="best-badge hidden" id="lessonBestBadge">🏆 Rekor Baru!</span>
+          <div class="results-grid">
+            <div class="result-item big">
+              <span class="result-value" id="lessonResultAccuracy">100%</span>
+              <span class="result-label">Akurasi</span>
+            </div>
+            <div class="result-item big">
+              <span class="result-value" id="lessonResultBest">—</span>
+              <span class="result-label">Terbaik</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="lessonResultCorrect">0</span>
+              <span class="result-label">Kata Benar</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="lessonResultWrong">0</span>
+              <span class="result-label">Kata Salah</span>
+            </div>
+          </div>
+          <div class="game-over-actions">
+            <button class="btn-primary" id="lessonRetryBtn">Ulangi Latihan</button>
+            <button class="btn-secondary" id="lessonMenuBtn">Menu</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==================== TYPING GAME PAGE ==================== -->
+    <main id="gamePage" class="page">
+      <div class="game-menu" id="gameMenu">
+        <h2>Pilih Mode Permainan</h2>
+        <div class="game-modes">
+          <div class="game-mode-card" data-game="falling">
+            <div class="game-icon">⬇️</div>
+            <h3>Kata Jatuh</h3>
+            <p>Ketik kata sebelum jatuh ke bawah! Semakin cepat, semakin banyak poin.</p>
+          </div>
+          <div class="game-mode-card" data-game="race">
+            <div class="game-icon">🏎️</div>
+            <h3>Balapan Ketik</h3>
+            <p>Ketik kata untuk memacu mobilmu! Kalahkan waktu untuk menang.</p>
+          </div>
+          <div class="game-mode-card" data-game="survival">
+            <div class="game-icon">💀</div>
+            <h3>Survival</h3>
+            <p>Kata muncul semakin cepat. Hidupmu berkurang jika kata salah. Bertahan selama mungkin!</p>
+          </div>
+          <div class="game-mode-card" data-game="buzz">
+            <div class="game-icon">⚡</div>
+            <h3>Speed Buzz</h3>
+            <p>Ketik kata secepat mungkin dalam 30 detik! Combo untuk poin bonus.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Canvas Area -->
+      <div class="game-area hidden" id="gameArea">
+        <div class="game-hud">
+          <div class="game-hud-item">
+            <span class="hud-label">Skor</span>
+            <span class="hud-value" id="gameScore">0</span>
+          </div>
+          <div class="game-hud-item">
+            <span class="hud-label">Level</span>
+            <span class="hud-value" id="gameLevel">1</span>
+          </div>
+          <div class="game-hud-item" id="gameLivesContainer">
+            <span class="hud-label">Nyawa</span>
+            <span class="hud-value" id="gameLives">❤️❤️❤️</span>
+          </div>
+          <div class="game-hud-item">
+            <span class="hud-label">Combo</span>
+            <span class="hud-value" id="gameCombo">x1</span>
+          </div>
+          <div class="game-hud-item hidden" id="gameTimerContainer">
+            <span class="hud-label">Waktu</span>
+            <span class="hud-value" id="gameTimeLeft">30</span>
+          </div>
+          <div class="game-hud-item">
+            <button class="btn-small" id="gameBackBtn">← Menu</button>
+          </div>
+        </div>
+
+        <div class="game-field" id="gameField">
+          <!-- Dynamic game elements go here -->
+        </div>
+
+        <div class="game-input-area">
+          <input type="text" id="gameInput" class="game-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Ketik kata di sini...">
+        </div>
+      </div>
+
+      <!-- Game Over Overlay -->
+      <div class="game-over-overlay hidden" id="gameOverOverlay">
+        <div class="results-card game-over-card">
+          <button class="overlay-close" id="gameOverClose" aria-label="Tutup hasil" title="Kembali ke menu">✕</button>
+          <h2 id="gameOverTitle">Game Over!</h2>
+          <span class="best-badge hidden" id="gameOverBest">🏆 Rekor Baru!</span>
+          <div class="results-grid">
+            <div class="result-item big">
+              <span class="result-value" id="gameOverScore">0</span>
+              <span class="result-label">Skor</span>
+            </div>
+            <div class="result-item big">
+              <span class="result-value" id="gameOverLevel">1</span>
+              <span class="result-label">Level</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="gameOverWords">0</span>
+              <span class="result-label">Kata Diketik</span>
+            </div>
+            <div class="result-item">
+              <span class="result-value" id="gameOverBestCombo">x1</span>
+              <span class="result-label">Combo Terbaik</span>
+            </div>
+          </div>
+          <div class="game-over-actions">
+            <button class="btn-primary" id="gameRestartBtn">Main Lagi</button>
+            <button class="btn-secondary" id="gameMenuBtn">Menu</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="words.js"></script>
+  <script src="test.js"></script>
+  <script src="game.js"></script>
+  <script src="lesson.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
