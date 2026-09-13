@@ -913,6 +913,49 @@ nav {
   animation: fadeIn 0.2s ease;
 }
 
+.sentence-counter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: max-content;
+  max-width: calc(100% - 40px);
+  margin: 0 auto 14px;
+  padding: 6px 18px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.sentence-counter::before {
+  content: '📝';
+  font-size: 0.9rem;
+}
+
+.word-display.sentence-mode {
+  text-align: center;
+  border-left: 3px solid rgba(78, 205, 196, 0.5);
+  border-right: 3px solid rgba(78, 205, 196, 0.5);
+  padding: 34px 30px;
+}
+
+.word-display.sentence-mode .word {
+  font-size: 1.15em;
+}
+
+.word-display.sentence-switch {
+  animation: sentenceFlash 0.4s ease;
+}
+
+@keyframes sentenceFlash {
+  0% { opacity: 0.3; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .hint-bar {
   display: flex;
   align-items: center;

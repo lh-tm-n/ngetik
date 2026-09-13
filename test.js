@@ -3,6 +3,8 @@ class TypingTest {
     this.words = [];
     this.wordResults = [];
     this.typedWords = [];
+    this.sentences = [];
+    this.sentenceStarts = [];
     this.currentWordIndex = 0;
     this.correctWords = 0;
     this.wrongWords = 0;
@@ -18,6 +20,7 @@ class TypingTest {
     this.timeRemaining = 30;
     this.wpmHistory = [];
     this.lastPushSec = 0;
+    this._lastSentence = -1;
 
     this.elements = {
       wordDisplay: document.getElementById('wordDisplay'),
@@ -87,14 +90,6 @@ class TypingTest {
   }
 
   generateWords() {
-    const wordPool = this.difficulty === 'easy'
-      ? WORD_LISTS.easy
-      : this.difficulty === 'hard'
-        ? WORD_LISTS.hard
-        : this.difficulty === 'sentences'
-          ? [...WORDS.sentences, ...SENTENCES_ID]
-          : WORD_LISTS.mixed;
-
     const count = this.mode === 'words'
       ? this.wordLimit + 15
       : Math.max(100, Math.ceil(this.timeLimit * 6) + 20);
@@ -102,6 +97,30 @@ class TypingTest {
     this.words = [];
     this.wordResults = [];
     this.typedWords = [];
+    this.sentences = [];
+    this.sentenceStarts = [];
+
+    if (this.difficulty === 'sentence') {
+      while (this.words.length < count) {
+        const sentence = SENTENCES_ID[Math.floor(Math.random() * SENTENCES_ID.length)];
+        this.sentences.push(sentence);
+        this.sentenceStarts.push(this.words.length);
+        sentence.split(' ').forEach((w) => {
+          if (this.words.length >= count) return;
+          this.words.push(w);
+          this.wordResults.push(null);
+          this.typedWords.push('');
+        });
+      }
+      return;
+    }
+
+    const wordPool = this.difficulty === 'easy'
+      ? WORD_LISTS.easy
+      : this.difficulty === 'hard'
+        ? WORD_LISTS.hard
+        : WORD_LISTS.mixed;
+
     while (this.words.length < count) {
       const word = wordPool[Math.floor(Math.random() * wordPool.length)];
       this.words.push(word);
@@ -114,8 +133,16 @@ class TypingTest {
     const display = this.elements.wordDisplay;
     display.innerHTML = '';
 
-    const start = Math.max(0, this.currentWordIndex - 2);
-    const end = Math.min(this.words.length, this.currentWordIndex + 15);
+    let start;
+    let end;
+    if (this.difficulty === 'sentence' && this.sentenceStarts.length) {
+      const s = this.currentSentenceIndex();
+      start = this.sentenceStarts[s];
+      end = s + 1 < this.sentenceStarts.length ? this.sentenceStarts[s + 1] : this.words.length;
+    } else {
+      start = Math.max(0, this.currentWordIndex - 2);
+      end = Math.min(this.words.length, this.currentWordIndex + 15);
+    }
 
     for (let i = start; i < end; i++) {
       const wordSpan = document.createElement('span');
@@ -175,6 +202,43 @@ class TypingTest {
       const space = document.createTextNode(' ');
       display.appendChild(wordSpan);
       display.appendChild(space);
+    }
+
+    this.updateSentenceInfo();
+  }
+
+  currentSentenceIndex() {
+    let s = 0;
+    for (let j = this.sentenceStarts.length - 1; j >= 0; j--) {
+      if (this.sentenceStarts[j] <= this.currentWordIndex) {
+        s = j;
+        break;
+      }
+    }
+    return s;
+  }
+
+  updateSentenceInfo() {
+    const counter = document.getElementById('sentenceCounter');
+    const display = this.elements.wordDisplay;
+    if (!counter) return;
+
+    const isSentence = this.difficulty === 'sentence';
+    counter.classList.toggle('hidden', !isSentence);
+    display.classList.toggle('sentence-mode', isSentence);
+
+    if (isSentence) {
+      const s = this.currentSentenceIndex();
+      counter.textContent = 'Kalimat ke-' + (s + 1) + ' dari ' + this.sentences.length;
+
+      if (this._lastSentence !== s) {
+        this._lastSentence = s;
+        display.classList.remove('sentence-switch');
+        void display.offsetWidth;
+        display.classList.add('sentence-switch');
+      }
+    } else {
+      this._lastSentence = -1;
     }
   }
 
@@ -429,6 +493,9 @@ class TypingTest {
     this.isFinished = false;
     this.wpmHistory = [];
     this.timeRemaining = this.timeLimit;
+    this.sentences = [];
+    this.sentenceStarts = [];
+    this._lastSentence = -1;
 
     this.generateWords();
     this.renderWords();
